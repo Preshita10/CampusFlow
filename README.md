@@ -4,13 +4,7 @@
 
 ## 🚀 Quick Start
 
-```bash
-git clone <your-repo-url>
-cd CampusFlow
-./setup.sh
-```
-
-Then start the app (see below). Or follow the manual setup.
+Clone the repo, navigate to the project folder, and run the setup script. Then start the app (see below) or follow the manual setup.
 
 ### Prerequisites
 - Node.js 20+ and npm
@@ -19,67 +13,19 @@ Then start the app (see below). Or follow the manual setup.
 
 ### Setup
 
-1. **Run the setup script** (automates database and dependency setup):
-```bash
-./setup.sh
-```
+1. **Run the setup script** (automates database and dependency setup): Run setup.sh from the project root.
 
 Or manually:
 
-2. **Install dependencies**:
-```bash
-# Backend
-cd backend
-npm install
+2. **Install dependencies**: Install backend dependencies in the backend folder, then frontend dependencies in the frontend folder.
 
-# Frontend
-cd ../frontend
-npm install
-```
+3. **Set up the database**: Create the campusflow database using createdb or psql.
 
-3. **Set up the database**:
-```bash
-# Create database (if not exists)
-createdb campusflow
+4. **Configure environment variables**: Copy .env.example to .env in both backend and frontend directories, and update if needed.
 
-# Or using psql
-psql -U postgres -c "CREATE DATABASE campusflow;"
-```
+5. **Initialize database**: From the backend folder, run prisma generate, prisma db push, and prisma:seed.
 
-4. **Configure environment variables**:
-```bash
-# Backend - Copy .env.example to .env and update if needed
-cd backend
-cp .env.example .env
-
-# Frontend - Copy .env.example to .env
-cd ../frontend
-cp .env.example .env
-```
-
-5. **Initialize database**:
-```bash
-cd backend
-npx prisma generate
-npx prisma db push
-npm run prisma:seed
-```
-
-6. **Start the application**:
-
-Terminal 1 - Backend:
-```bash
-cd backend
-npm run dev
-```
-
-Terminal 2 - Frontend:
-```bash
-cd frontend
-npm run dev
-```
-
-Access the application at: **http://localhost:5173**
+6. **Start the application**: Run the backend dev server in one terminal and the frontend dev server in another. Access the application at http://localhost:5173.
 
 ### Demo Credentials (for testing only)
 
@@ -87,15 +33,12 @@ Demo credentials are provided here for local testing. They are **not** shown in 
 
 The system comes pre-seeded with multiple users:
 
-- **Student**
-  - Email: `student@gmu.edu`
-  - Password: `student123`
-  - Role: `STUDENT`
-
-- **Advisor**
-  - Email: `advisor@gmu.edu`
-  - Password: `advisor123`
-  - Role: `ADVISOR`
+- **Student** — student@gmu.edu / student123 — Role: STUDENT
+- **Advisor** — advisor@gmu.edu / advisor123 — Role: ADVISOR
+- **Professor** — professor@gmu.edu / professor123 — Role: PROFESSOR
+- **Department Admin** — deptadmin@gmu.edu / deptadmin123 — Role: DEPT_ADMIN
+- **Dean** — dean@gmu.edu / dean123 — Role: DEAN
+- **Super Admin** — admin@gmu.edu / admin123 — Role: SUPER_ADMIN
 
 ## 📋 Features
 
@@ -115,44 +58,16 @@ The system comes pre-seeded with multiple users:
 - View metrics dashboard (total requests, by status, by category, avg resolution time, SLA risk count)
 
 ### AI Features (MVP)
-- **Automatic Classification**: Rule-based keyword matching categorizes requests into:
-  - COURSE_OVERRIDE
-  - ADD_DROP
-  - GRADUATION_AUDIT
-  - RECOMMENDATION
-  - FUNDING
-  - GENERAL
+- **Automatic Classification**: Rule-based keyword matching categorizes requests into COURSE_OVERRIDE, ADD_DROP, GRADUATION_AUDIT, RECOMMENDATION, FUNDING, GENERAL
 - **AI Summary**: Generates 4-6 line summaries covering request intent, status, key details, and latest comments
-- **Optional LLM Support**: Set `OPENAI_API_KEY` environment variable to enable LLM-based classification/summarization (falls back to rule-based if unavailable)
+- **Optional LLM Support**: Set OPENAI_API_KEY environment variable to enable LLM-based classification/summarization (falls back to rule-based if unavailable)
 
 ### Audit Logging
-Every action creates an audit log entry:
-- REQUEST_CREATED
-- STATUS_CHANGED (with from/to metadata)
-- COMMENT_ADDED
-- ASSIGNMENT_CHANGED
+Every action creates an audit log entry: REQUEST_CREATED, STATUS_CHANGED (with from/to metadata), COMMENT_ADDED, ASSIGNMENT_CHANGED.
 
 ## 🏗️ Architecture
 
-```
-┌─────────────────┐
-│   Frontend       │
-│   React + Vite   │
-│   Port: 5173     │
-└────────┬─────────┘
-         │ HTTP
-         │
-┌────────▼─────────┐
-│   Backend API     │
-│   Express + TS    │
-│   Port: 3001      │
-└────────┬─────────┘
-         │
-┌────────▼─────────┐
-│   PostgreSQL      │
-│   Port: 5432      │
-└───────────────────┘
-```
+Frontend (React + Vite on port 5173) communicates via HTTP with the Backend API (Express + TypeScript on port 3001), which connects to PostgreSQL on port 5432.
 
 ### Tech Stack
 - **Frontend**: React 18 + TypeScript + Vite + TailwindCSS
@@ -162,260 +77,92 @@ Every action creates an audit log entry:
 
 ## 📁 Project Structure
 
-```
-campusflow/
-├── backend/
-│   ├── src/
-│   │   ├── routes/          # API route handlers
-│   │   ├── services/        # Business logic (AI, audit)
-│   │   ├── middleware/      # Auth middleware
-│   │   └── prisma/          # Seed script
-│   ├── prisma/
-│   │   └── schema.prisma    # Database schema
-│   ├── .env.example         # Environment variables template
-│   └── package.json
-├── frontend/
-│   ├── src/
-│   │   ├── pages/           # Page components
-│   │   ├── components/      # Reusable components
-│   │   ├── contexts/        # React contexts
-│   │   ├── services/        # API client
-│   │   └── types/           # TypeScript types
-│   ├── .env.example         # Environment variables template
-│   └── package.json
-├── setup.sh                  # Setup script for local development
-└── README.md
-```
+Backend contains src (routes, services, middleware, prisma), prisma schema, .env.example, and package.json. Frontend contains src (pages, components, contexts, services, types), .env.example, and package.json. Root has setup.sh and README.md.
 
 ## 🔌 API Endpoints
 
-### Health Check
-```bash
-GET /health
-```
+**Health Check**: GET /health
 
-### User
-```bash
-GET /me
-Headers: x-user-id, x-user-role
-```
+**User**: GET /me — Headers: x-user-id, x-user-role
 
-### Requests
-```bash
-# Create request (STUDENT only)
-POST /requests
-Headers: x-user-id: 1, x-user-role: STUDENT
-Body: { "title": "...", "description": "..." }
+**Requests**:
+- Create (STUDENT only): POST /requests with title and description
+- List: GET /requests with optional status and category filters
+- Get details: GET /requests/:id
+- Update status (STAFF only): PATCH /requests/:id/status
+- Add comment: POST /requests/:id/comments with message
 
-# List requests
-GET /requests?status=SUBMITTED&category=COURSE_OVERRIDE
-Headers: x-user-id, x-user-role
-
-# Get request details
-GET /requests/:id
-Headers: x-user-id, x-user-role
-
-# Update status (STAFF only)
-PATCH /requests/:id/status
-Headers: x-user-id: 2, x-user-role: STAFF
-Body: { "status": "IN_REVIEW" }
-
-# Add comment
-POST /requests/:id/comments
-Headers: x-user-id, x-user-role
-Body: { "message": "..." }
-```
-
-### Metrics (STAFF only)
-```bash
-GET /metrics
-Headers: x-user-id: 2, x-user-role: STAFF
-```
+**Metrics (STAFF only)**: GET /metrics
 
 ## 🧪 Demo Script
 
 ### 1. Start the System
-
-Terminal 1 - Backend:
-```bash
-cd backend
-npm run dev
-```
-
-Terminal 2 - Frontend:
-```bash
-cd frontend
-npm run dev
-```
+Start the backend dev server in one terminal and the frontend dev server in another.
 
 ### 2. Access the Application
 Open http://localhost:5173 in your browser.
 
 ### 3. Student Workflow
-1. Ensure you're acting as **Student** (check navbar toggle)
+1. Ensure you're acting as Student (check navbar toggle)
 2. Navigate to "My Requests"
 3. Click "+ New Request"
-4. Fill in:
-   - Title: "Request to Override Prerequisite for CS 662"
-   - Description: "I would like to request permission to enroll in CS 662 Advanced Graphics without having completed CS 550. I have equivalent experience from my previous institution."
+4. Fill in title and description (e.g., "Request to Override Prerequisite for CS 662")
 5. Click "Submit Request"
-6. View the created request - notice the AI-generated category and summary
-7. Add a comment: "Please let me know if you need any additional information."
+6. View the created request — notice the AI-generated category and summary
+7. Add a comment
 
 ### 4. Staff Workflow
 1. Click "Act as: Staff" in the navbar
 2. Navigate to "Request Queue"
 3. See all requests, including the one you just created
 4. Click on a request to view details
-5. Change status from "SUBMITTED" to "IN_REVIEW"
-6. Add a comment: "Thank you for your request. I will review your transcript and get back to you within 2 business days."
+5. Change status from SUBMITTED to IN_REVIEW
+6. Add a comment
 7. Notice the audit log shows all activity
 8. Navigate to "Metrics" to see dashboard statistics
 
 ### 5. Using cURL (Alternative)
-
-First, login to get an access token:
-```bash
-curl -X POST http://localhost:3001/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "student@gmu.edu",
-    "password": "student123"
-  }'
-```
-
-Use the returned `accessToken` in subsequent requests:
-```bash
-TOKEN="your-access-token-here"
-
-# Create Request as Student
-curl -X POST http://localhost:3001/api/requests \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $TOKEN" \
-  -d '{
-    "title": "Late Add Request for MATH 101",
-    "description": "I need to add MATH 101 to my schedule after the add deadline."
-  }'
-
-# List Requests
-curl http://localhost:3001/api/requests \
-  -H "Authorization: Bearer $TOKEN"
-
-# Update Status (as Staff)
-curl -X PATCH http://localhost:3001/api/requests/req-1/status \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $TOKEN" \
-  -d '{"status": "APPROVED"}'
-
-# Get Metrics (as Staff)
-curl http://localhost:3001/api/metrics \
-  -H "Authorization: Bearer $TOKEN"
-```
+Login via POST to /api/auth/login to get an access token. Use the returned accessToken in the Authorization header for subsequent requests to create requests, list requests, update status, and get metrics.
 
 ## 🔧 Configuration
 
 ### Environment Variables
 
-Backend (`.env` in `backend/` directory):
-```env
-DATABASE_URL=postgresql://campusflow:campusflow123@localhost:5432/campusflow
-PORT=3001
-FRONTEND_URL=http://localhost:5173
-NODE_ENV=development
-JWT_SECRET=change-me-in-development-use-strong-secret
-JWT_REFRESH_SECRET=change-me-refresh-in-development-use-strong-secret
-JWT_EXPIRES_IN=15m
-JWT_REFRESH_EXPIRES_IN=7d
-OPENAI_API_KEY=
-```
+**Backend** (.env in backend/): DATABASE_URL, PORT, FRONTEND_URL, NODE_ENV, JWT_SECRET, JWT_REFRESH_SECRET, JWT_EXPIRES_IN, JWT_REFRESH_EXPIRES_IN, OPENAI_API_KEY
 
-Frontend (`.env` in `frontend/` directory):
-```env
-VITE_API_URL=http://localhost:3001
-```
+**Frontend** (.env in frontend/): VITE_API_URL
 
 ### Database Migrations
-
-To run migrations manually:
-
-```bash
-cd backend
-npx prisma migrate dev
-# Or for production
-npx prisma migrate deploy
-```
+Run prisma migrate dev from the backend folder for development, or prisma migrate deploy for production.
 
 ### Seed Data
-
-To seed the database:
-
-```bash
-cd backend
-npm run prisma:seed
-```
+Run prisma:seed from the backend folder.
 
 ## 🐛 Troubleshooting
 
 ### Port Already in Use
-If ports 3001, 5173, or 5432 are already in use:
-
-1. Stop conflicting services
-2. Or modify ports in `.env` files
+If ports 3001, 5173, or 5432 are already in use, stop conflicting services or modify ports in .env files.
 
 ### Database Connection Issues
-```bash
-# Check if PostgreSQL is running
-psql -U postgres -c "SELECT version();"
-
-# Test connection
-psql -U campusflow -d campusflow
-
-# Reset database (WARNING: deletes all data)
-dropdb campusflow
-createdb campusflow
-cd backend
-npx prisma db push
-npm run prisma:seed
-```
+Check if PostgreSQL is running. Test the connection. To reset (WARNING: deletes all data): drop and recreate the database, then run prisma db push and prisma:seed from backend.
 
 ### Backend Not Starting
-```bash
-# Check backend logs in terminal
-# Common issues:
-# - Prisma migrations failed → Check DATABASE_URL
-# - Port conflict → Check PORT environment variable
-# - Missing dependencies → Run npm install
-```
+Check backend logs. Common issues: Prisma migrations failed (check DATABASE_URL), port conflict (check PORT), missing dependencies (run npm install).
 
 ### Frontend Not Loading
-```bash
-# Check frontend logs in terminal
-# Verify VITE_API_URL matches backend URL
-# Check browser console for CORS errors
-# Clear browser cache
-```
+Check frontend logs. Verify VITE_API_URL matches backend URL. Check browser console for CORS errors. Clear browser cache.
 
 ### Prisma Issues
-```bash
-cd backend
-# Regenerate Prisma client
-npx prisma generate
-
-# Reset database and re-seed
-npx prisma db push --accept-data-loss
-npm run prisma:seed
-```
+From backend: regenerate Prisma client with prisma generate. To reset database and re-seed: prisma db push with accept-data-loss, then prisma:seed.
 
 ## 🔒 Security Notes
 
-**⚠️ MVP Implementation**: This is an MVP with simplified authentication using headers. For production:
+**⚠️ MVP Implementation**: This is an MVP with simplified authentication using headers. For production: implement proper authentication (JWT, OAuth), add rate limiting, CSRF protection, input sanitization, environment-specific secrets, HTTPS, request validation middleware, and proper RBAC with database-backed roles.
 
-1. Implement proper authentication (JWT, OAuth, etc.)
-2. Add rate limiting
-3. Implement CSRF protection
-4. Add input sanitization
-5. Use environment-specific secrets
-6. Enable HTTPS
-7. Add request validation middleware
-8. Implement proper RBAC with database-backed roles
+## 📝 License
 
+MIT
+
+---
+
+Built as a production-quality MVP for academic request management.
