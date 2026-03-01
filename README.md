@@ -97,26 +97,6 @@ The system comes pre-seeded with multiple users:
   - Password: `advisor123`
   - Role: `ADVISOR`
 
-- **Professor**
-  - Email: `professor@gmu.edu`
-  - Password: `professor123`
-  - Role: `PROFESSOR`
-
-- **Department Admin**
-  - Email: `deptadmin@gmu.edu`
-  - Password: `deptadmin123`
-  - Role: `DEPT_ADMIN`
-
-- **Dean**
-  - Email: `dean@gmu.edu`
-  - Password: `dean123`
-  - Role: `DEAN`
-
-- **Super Admin**
-  - Email: `admin@gmu.edu`
-  - Password: `admin123`
-  - Role: `SUPER_ADMIN`
-
 ## 📋 Features
 
 ### Student Features
