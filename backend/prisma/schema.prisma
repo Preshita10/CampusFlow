@@ -1,0 +1,174 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  STUDENT
+  ADVISOR
+  PROFESSOR
+  DEPT_ADMIN
+  DEAN
+  SUPER_ADMIN
+}
+
+enum RequestStatus {
+  SUBMITTED
+  IN_REVIEW
+  NEEDS_INFO
+  APPROVED
+  REJECTED
+  ESCALATED
+}
+
+enum RequestCategory {
+  COURSE_OVERRIDE
+  ADD_DROP
+  GRADUATION_AUDIT
+  RECOMMENDATION
+  FUNDING
+  GENERAL
+}
+
+model Department {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  code        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  users    User[]
+  programs Program[]
+
+  @@index([code])
+}
+
+model Program {
+  id           String   @id @default(uuid())
+  name         String
+  code         String
+  departmentId String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  department Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  users       User[]
+
+  @@unique([code, departmentId])
+  @@index([departmentId])
+}
+
+model User {
+  id              String   @id @default(uuid())
+  name            String
+  email           String   @unique
+  passwordHash    String   // bcrypt hash
+  role            UserRole
+  departmentId    String?
+  programId       String?
+  isActive        Boolean  @default(true)
+  emailVerified   Boolean  @default(false)
+  lastLoginAt     DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  department      Department? @relation(fields: [departmentId], references: [id])
+  program         Program?    @relation(fields: [programId], references: [id])
+  refreshTokens   RefreshToken[]
+  createdRequests Request[]    @relation("CreatedBy")
+  assignedRequests Request[]    @relation("AssignedTo")
+  comments        Comment[]
+  auditLogs       AuditLog[]
+
+  @@index([email])
+  @@index([role])
+  @@index([departmentId])
+  @@index([programId])
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  revokedAt DateTime?
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@index([expiresAt])
+}
+
+model Request {
+  id          String         @id @default(uuid())
+  title       String
+  description String
+  status      RequestStatus  @default(SUBMITTED)
+  category    RequestCategory?
+  aiSummary   String?        @db.Text
+  createdById String
+  assignedToId String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  resolvedAt  DateTime?
+
+  // Relations
+  createdBy   User      @relation("CreatedBy", fields: [createdById], references: [id])
+  assignedTo  User?     @relation("AssignedTo", fields: [assignedToId], references: [id])
+  comments    Comment[]
+  auditLogs   AuditLog[]
+
+  @@index([status])
+  @@index([category])
+  @@index([createdById])
+  @@index([assignedToId])
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  requestId String
+  authorId  String
+  message   String   @db.Text
+  createdAt DateTime @default(now())
+
+  // Relations
+  request Request @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  author  User    @relation(fields: [authorId], references: [id])
+
+  @@index([requestId])
+  @@index([authorId])
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  requestId String?
+  actorId   String
+  action    String
+  meta      Json?
+  prevHash  String?  // For tamper-proof chain
+  hash      String?  // For tamper-proof chain
+  createdAt DateTime @default(now())
+
+  // Relations
+  request Request? @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  actor   User     @relation(fields: [actorId], references: [id])
+
+  @@index([requestId])
+  @@index([actorId])
+  @@index([createdAt])
+  @@index([action])
+}
