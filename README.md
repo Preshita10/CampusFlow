@@ -155,6 +155,18 @@ Check frontend logs. Verify VITE_API_URL matches backend URL. Check browser cons
 ### Prisma Issues
 From backend: regenerate Prisma client with prisma generate. To reset database and re-seed: prisma db push with accept-data-loss, then prisma:seed.
 
+## 📸 Screenshots
+
+**Student Dashboard — My Requests**
+Manage academic requests, search, filter, use quick templates, and track request status.
+
+![Student Dashboard](screenshots/student-dashboard.png)
+
+**Resources Page**
+Browse forms, policies, guides, and contact information.
+
+![Resources Page](screenshots/resources-page.png)
+
 ## 🔒 Security Notes
 
 **⚠️ MVP Implementation**: This is an MVP with simplified authentication using headers. For production: implement proper authentication (JWT, OAuth), add rate limiting, CSRF protection, input sanitization, environment-specific secrets, HTTPS, request validation middleware, and proper RBAC with database-backed roles.
